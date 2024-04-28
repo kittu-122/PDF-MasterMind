@@ -1,0 +1,9 @@
+PyPDF2
+langchain
+langchain-google-genai
+streamlit
+python-dotenv
+sumy
+whoosh
+protobuf
+google-cloud-aiplatform
