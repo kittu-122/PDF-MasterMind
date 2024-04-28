@@ -26,6 +26,7 @@ google_api_key = os.getenv("GOOGLE_API_KEY")
 aiplatform.init(project="pdf-mastermind", location="us-central1")
 
 # Function to extract text from PDF documents
+@st.cache
 def get_pdf_text(pdf_docs):
     text = ""
     for pdf in pdf_docs:
@@ -77,16 +78,18 @@ def get_conversational_chain():
 
 # Function to summarize document
 def summarize_document(text, summary_length=3):
-    LANGUAGE = "english"
-    tokenizer = Tokenizer(LANGUAGE)
-    stemmer = Stemmer(LANGUAGE)
-    parser = PlaintextParser.from_string(text, tokenizer)
-    summarizer = LsaSummarizer(stemmer)
-    summarizer.stop_words = get_stop_words(LANGUAGE)
-    summary = []
-    for sentence in summarizer(parser.document, summary_length):
-        summary.append(str(sentence))
-    return summary
+    try:
+        LANGUAGE = "english"
+        tokenizer = Tokenizer(LANGUAGE)
+        stemmer = Stemmer(LANGUAGE)
+        parser = PlaintextParser.from_string(text, tokenizer)
+        summarizer = LsaSummarizer(stemmer)
+        summarizer.stop_words = get_stop_words(LANGUAGE)
+        summary = [str(sentence) for sentence in summarizer(parser.document, summary_length)]
+        return summary
+    except Exception as e:
+        st.error(f"Error summarizing document: {e}")
+        return None
 
 # Function to create search index for PDF documents
 def create_search_index(pdf_docs):
@@ -139,11 +142,13 @@ def display_pdf_summaries(pdf_docs):
     for pdf in pdf_docs:
         with st.expander(f"Summary for {pdf.name}"):
             summary_length = st.slider("Summary Length", key=f"summary_slider_{pdf.name}", min_value=1, max_value=10, value=3)
-            summary = summarize_document(get_pdf_text([pdf]), summary_length)
-            
-            st.markdown("### Summary:")
-            for i, sentence in enumerate(summary, start=1):
-                st.write(f"- {sentence}")
+            text = get_pdf_text([pdf])
+            if text:
+                summary = summarize_document(text, summary_length)
+                if summary:
+                    st.markdown("### Summary:")
+                    for i, sentence in enumerate(summary, start=1):
+                        st.write(f"- {sentence}")
 
 # Function to handle user input
 def user_input(user_question, pdf_docs):
