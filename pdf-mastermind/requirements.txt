@@ -7,3 +7,4 @@ sumy
 whoosh
 protobuf
 google-cloud-aiplatform
+faiss-cpu
