@@ -18,6 +18,9 @@ from whoosh.query import Every
 from whoosh.qparser import QueryParser
 from google.cloud import aiplatform
 
+import nltk
+nltk.download('punkt')
+
 # Load environment variables
 load_dotenv()
 google_api_key = os.getenv("GOOGLE_API_KEY")
