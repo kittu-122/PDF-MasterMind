@@ -25,6 +25,7 @@ google_api_key = os.getenv("GOOGLE_API_KEY")
 # Authenticate with Vertex AI
 aiplatform.init(project="pdf-mastermind", location="us-central1")
 
+# Function to extract text from PDF documents
 def get_pdf_text(pdf_docs):
     text = ""
     for pdf in pdf_docs:
@@ -36,11 +37,13 @@ def get_pdf_text(pdf_docs):
                 st.warning(f"Error extracting text from PDF: {e}")
     return text
 
+# Function to split text into chunks
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)
     chunks = text_splitter.split_text(text)
     return chunks
 
+# Function to create vector store for text chunks
 def get_vector_store(text_chunks):
     embeddings = GoogleGenerativeAIEmbeddings(api_key=google_api_key, model="models/embedding-001")
     try:
@@ -49,6 +52,7 @@ def get_vector_store(text_chunks):
     except Exception as e:
         st.warning(f"Error creating FAISS index: {e}")
 
+# Function to load conversational AI chain
 def get_conversational_chain():
     prompt_template = """
     Answer the question as detailed as possible from the provided context, make sure to provide all the details, if the answer is not in provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
@@ -71,6 +75,7 @@ def get_conversational_chain():
     chain = load_qa_chain(llm=runnable_model, chain_type="stuff", prompt=prompt)
     return chain
 
+# Function to summarize document
 def summarize_document(text, summary_length=3):
     LANGUAGE = "english"
     tokenizer = Tokenizer(LANGUAGE)
@@ -83,6 +88,7 @@ def summarize_document(text, summary_length=3):
         summary.append(str(sentence))
     return summary
 
+# Function to create search index for PDF documents
 def create_search_index(pdf_docs):
     schema = Schema(title=TEXT(stored=True), content=TEXT)
     if not os.path.exists("index"):
@@ -98,6 +104,7 @@ def create_search_index(pdf_docs):
         writer.add_document(title=title, content=content)
     writer.commit()
 
+# Function to search documents based on query
 def search_documents(query):
     ix = open_dir("index")
     results = []
@@ -114,6 +121,7 @@ def search_documents(query):
         return None, google_search_link
     return results, None
 
+# Function to display search results
 def display_search_results(results):
     if results:
         st.write("Search Results:")
@@ -122,9 +130,11 @@ def display_search_results(results):
     else:
         st.write("No results found.")
 
+# Function to clear chat history
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "Provide PDFs for Unique Rewrite"}]
 
+# Function to display PDF summaries
 def display_pdf_summaries(pdf_docs):
     for pdf in pdf_docs:
         with st.expander(f"Summary for {pdf.name}"):
@@ -135,6 +145,7 @@ def display_pdf_summaries(pdf_docs):
             for i, sentence in enumerate(summary, start=1):
                 st.write(f"- {sentence}")
 
+# Function to handle user input
 def user_input(user_question, pdf_docs):
     try:
         embeddings = GoogleGenerativeAIEmbeddings(api_key=google_api_key, model="models/embedding-001")
@@ -148,8 +159,15 @@ def user_input(user_question, pdf_docs):
         st.error(f"Error processing user input: {e}")
         return None
 
-
+# Main function
 def main():
+    # Check if 'pdf_docs' is not already in session_state
+    if 'pdf_docs' not in st.session_state:
+        st.session_state.pdf_docs = None  # Initialize pdf_docs attribute to None or an empty list
+    # Check if 'pdf_docs' is None or not iterable
+    if st.session_state.pdf_docs is None or not isinstance(st.session_state.pdf_docs, list):
+        st.session_state.pdf_docs = []  # Initialize pdf_docs as an empty list
+
     st.set_page_config(
         page_title="PDF Mastermind",
         page_icon="🤖"
