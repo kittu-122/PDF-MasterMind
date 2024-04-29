@@ -9,6 +9,19 @@ Before you begin, ensure you have met the following requirements:
 * Google Cloud SDK installed. You can download it from [Google Cloud SDK](https://cloud.google.com/sdk?hl=en)
 * Access to Vertex AI services for advanced AI capabilities.
 
+## Problem Description
+1.	Managing and extracting insights from large volumes of PDF documents is tedious and time-consuming.
+2.	Traditional methods lack efficiency and intuitive interaction with PDF content.
+3.	Challenges faced by professionals across various domains, including researchers, educators, and knowledge workers.
+
+## Solution Provided
+1.	PDF Mastermind automates PDF management tasks.
+2.	Users can upload PDF files and extract text effortlessly.
+3.	Search indexes are created to facilitate efficient document retrieval.
+4.	Document summaries are generated to provide quick insights.
+5.	Conversational interactions enable users to obtain relevant information seamlessly.
+6.	Harnesses AI and natural language processing to streamline access, analysis, and sharing of knowledge from PDF documents.
+
 ## Features
 * PDF Text Extraction: The application can extract text from uploaded PDF documents, enabling further analysis and processing.
 * Document Summarization: PDF Mastermind provides a summarization feature that condenses lengthy documents into concise summaries, facilitating quick understanding of the document's key points.
